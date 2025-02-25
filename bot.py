@@ -44,54 +44,63 @@ def handle_all_messages(message):
     if not is_user_allowed(chat_id):
         return  # Игнорируем сообщения из других чатов
     
-    # Обработка сообщений из разрешенной группы
+    if message.text in ["NAME", "IP", "DATE", "COMMENT"]:
+        handle_input_requests(message)
+    elif message.text == "SHOW":
+        handle_show_request(chat_id)
+    elif message.text == "CLEAR":
+        handle_clear_request(chat_id)
+    else:
+        handle_user_input(chat_id, message.text)
+
+def handle_input_requests(message):
+    chat_id = message.chat.id
     if message.text == "NAME":
         bot.send_message(chat_id, "Введите имя для конфигурации", reply_markup=menu)
-        user_states[chat_id] = 'waiting_for_name_input'  # Устанавливаем состояние ожидания ввода имени
+        user_states[chat_id] = 'waiting_for_name_input'
     elif message.text == "IP":
         bot.send_message(chat_id, "Введите IP для конфигурации", reply_markup=menu)
-        user_states[chat_id] = 'waiting_for_ip_input'  # Устанавливаем состояние ожидания ввода IP
+        user_states[chat_id] = 'waiting_for_ip_input'
     elif message.text == "DATE":
         bot.send_message(chat_id, "Введите дату окончания подписки", reply_markup=menu)
-        user_states[chat_id] = 'waiting_for_date_input'  # Устанавливаем состояние ожидания ввода даты
+        user_states[chat_id] = 'waiting_for_date_input'
     elif message.text == "COMMENT":
         bot.send_message(chat_id, "Введите комментарий для конфигурации", reply_markup=menu)
-        user_states[chat_id] = 'waiting_for_comment_input'  # Устанавливаем состояние ожидания ввода комментария
-    elif message.text == "SHOW":
-        if chat_id in user_data:
-            config_name = user_data[chat_id].get('config_name', 'не указано')
-            ip = user_data[chat_id].get('ip', 'не указано')
-            date = user_data[chat_id].get('date', 'не указано')
-            comment = user_data[chat_id].get('comment', 'не указано')
-            bot.send_message(chat_id, f"Вы ввели:\nИмя: {config_name}\nIP: {ip}\nДата: {date}\nКомментарий: {comment}", reply_markup=menu)
-            #user_data.pop(chat_id)  # Очищаем данные пользователя после вывода
-        else:
-            bot.send_message(chat_id, "Вы ещё не ввели данные для конфигурации.", reply_markup=menu)
-    elif message.text == "CLEAR":
-        if chat_id in user_data:
-            user_data.pop(chat_id)
-            bot.send_message(chat_id, "Все введенные данные очищены.", reply_markup=menu)
-        else:
-            bot.send_message(chat_id, "Нет данных для очистки.", reply_markup=menu)
-    else:
-        # Обработка ввода данных в зависимости от текущего состояния
-        if chat_id in user_states:
-            # Инициализация словаря для пользователя, если его ещё нет
-            if chat_id not in user_data:
-                user_data[chat_id] = {}
-            
-            if user_states[chat_id] == 'waiting_for_name_input':
-                user_data[chat_id]['config_name'] = message.text
-                bot.send_message(chat_id, f"Имя '{message.text}' сохранено.", reply_markup=menu)
-            elif user_states[chat_id] == 'waiting_for_ip_input':
-                user_data[chat_id]['ip'] = message.text
-                bot.send_message(chat_id, f"IP '{message.text}' сохранён.", reply_markup=menu)
-            elif user_states[chat_id] == 'waiting_for_date_input':
-                user_data[chat_id]['date'] = message.text
-                bot.send_message(chat_id, f"Дата '{message.text}' сохранена.", reply_markup=menu)
-            elif user_states[chat_id] == 'waiting_for_comment_input':
-                user_data[chat_id]['comment'] = message.text
-                bot.send_message(chat_id, f"Комментарий '{message.text}' сохранён.", reply_markup=menu)
-            user_states[chat_id] = None  # Сбрасываем состояние после сохранения данных
+        user_states[chat_id] = 'waiting_for_comment_input'
 
+def handle_show_request(chat_id):
+    if chat_id in user_data:
+        config_name = user_data[chat_id].get('config_name', 'не указано')
+        ip = user_data[chat_id].get('ip', 'не указано')
+        date = user_data[chat_id].get('date', 'не указано')
+        comment = user_data[chat_id].get('comment', 'не указано')
+        bot.send_message(chat_id, f"Вы ввели:\nИмя: {config_name}\nIP: {ip}\nДата: {date}\nКомментарий: {comment}", reply_markup=menu)
+    else:
+        bot.send_message(chat_id, "Вы ещё не ввели данные для конфигурации.", reply_markup=menu)
+
+def handle_clear_request(chat_id):
+    if chat_id in user_data:
+        user_data.pop(chat_id)
+        bot.send_message(chat_id, "Все введенные данные очищены.", reply_markup=menu)
+    else:
+        bot.send_message(chat_id, "Нет данных для очистки.", reply_markup=menu)
+
+def handle_user_input(chat_id, text):
+    if chat_id in user_states:
+        if chat_id not in user_data:
+            user_data[chat_id] = {}
+        
+        if user_states[chat_id] == 'waiting_for_name_input':
+            user_data[chat_id]['config_name'] = text
+            bot.send_message(chat_id, f"Имя '{text}' сохранено.", reply_markup=menu)
+        elif user_states[chat_id] == 'waiting_for_ip_input':
+            user_data[chat_id]['ip'] = text
+            bot.send_message(chat_id, f"IP '{text}' сохранён.", reply_markup=menu)
+        elif user_states[chat_id] == 'waiting_for_date_input':
+            user_data[chat_id]['date'] = text
+            bot.send_message(chat_id, f"Дата '{text}' сохранена.", reply_markup=menu)
+        elif user_states[chat_id] == 'waiting_for_comment_input':
+            user_data[chat_id]['comment'] = text
+            bot.send_message(chat_id, f"Комментарий '{text}' сохранён.", reply_markup=menu)
+        user_states[chat_id] = None  # Сбрасываем состояние после сохранения данных
 bot.infinity_polling()
