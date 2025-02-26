@@ -1,9 +1,12 @@
 from dotenv import load_dotenv
 import os
+import json
 import telebot
 from telebot import types
 import subprocess  # Импортируем модуль subprocess
 from utils.utils import *
+from telebot.types import InputFile
+
 
 load_dotenv()
 
@@ -95,18 +98,33 @@ def handle_create_request(chat_id):
         # Выполняем команды на backend
         try:
             # Выполняем команду
-            result = subprocess.run(COMMAND_GEN_CONFIG, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            command = COMMAND_GEN_CONFIG
+            #result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
+            # Читаем stdout и stderr
+            stdout, stderr = process.communicate()
             # Отправляем результат выполнения команды пользователю
-            bot.send_message(chat_id, f"Команда выполнена успешно:\n{result.stdout}", reply_markup=menu)
+            # Извлекаем пути из результата выполнения команды
+            output_dict = json.loads(stdout)
+            path_conf = output_dict['conf']
+            path_qr = output_dict['qr']
 
-#            # Отправляем изображение
-#            with open("/home/u/downloads123.png", "rb") as photo:
-#                bot.send_photo(chat_id, photo=InputFile(photo))
-#
-#            # Отправляем файл
-#            with open("/home/u/downloads123.conf", "rb") as file:
-#                bot.send_document(chat_id, document=InputFile(file))
+            # Отправляем сообщение об успешном выполнении
+            bot.send_message(chat_id, f"Конфигурация успешно создана!\n{path_conf}\n{ path_qr}") #\n{path_conf}\n{ path_qr}
+
+            # Отправляем изображение
+            with open(path_qr, "rb") as photo:
+                bot.send_photo(chat_id, photo=InputFile(photo))
+
+            # Отправляем файл
+            with open(path_conf, "rb") as file:
+                bot.send_document(
+                    chat_id,
+                    document=InputFile(file),
+                    visible_file_name= path_conf.split('/')[-1],  # Имя файла
+                    caption="Ваш конфигурационный файл"  # Опционально: подпись к файлу
+                )
 
         except subprocess.CalledProcessError as e:
             # Если произошла ошибка, отправляем сообщение об ошибке
