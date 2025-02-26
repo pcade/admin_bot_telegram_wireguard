@@ -94,19 +94,20 @@ def handle_create_request(chat_id):
     if chat_id in user_data:
         # Выполняем команды на backend
         try:
-            # Активируем виртуальное окружение
-            #activate_env = "source /home/gpahomov/Nextcloud/scripts/git/WireguardAutoConfinguration/wireguard/bin/activate"
-            # Запускаем скрипт
-            #run_script = "python3 /home/gpahomov/Nextcloud/scripts/git/WireguardAutoConfinguration/main.py"
-            
-            # Объединяем команды в одну строку
-            command = f"{COMMAND_GEN_CONFIG}"
-            
             # Выполняем команду
-            result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            
+            result = subprocess.run(COMMAND_GEN_CONFIG, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
             # Отправляем результат выполнения команды пользователю
             bot.send_message(chat_id, f"Команда выполнена успешно:\n{result.stdout}", reply_markup=menu)
+
+#            # Отправляем изображение
+#            with open("/home/u/downloads123.png", "rb") as photo:
+#                bot.send_photo(chat_id, photo=InputFile(photo))
+#
+#            # Отправляем файл
+#            with open("/home/u/downloads123.conf", "rb") as file:
+#                bot.send_document(chat_id, document=InputFile(file))
+
         except subprocess.CalledProcessError as e:
             # Если произошла ошибка, отправляем сообщение об ошибке
             bot.send_message(chat_id, f"Ошибка при выполнении команды:\n{e.stderr}", reply_markup=menu)
