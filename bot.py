@@ -2,6 +2,9 @@ from dotenv import load_dotenv
 import os
 import telebot
 from telebot import types
+import subprocess  # Импортируем модуль subprocess
+from utils.utils import *
+
 load_dotenv()
 
 token = os.getenv('TOKEN')
@@ -50,6 +53,8 @@ def handle_all_messages(message):
         handle_show_request(chat_id)
     elif message.text == "CLEAR":
         handle_clear_request(chat_id)
+    elif message.text == "CREATE":
+        handle_create_request(chat_id)
     else:
         handle_user_input(chat_id, message.text)
 
@@ -85,6 +90,29 @@ def handle_clear_request(chat_id):
     else:
         bot.send_message(chat_id, "Нет данных для очистки.", reply_markup=menu)
 
+def handle_create_request(chat_id):
+    if chat_id in user_data:
+        # Выполняем команды на backend
+        try:
+            # Активируем виртуальное окружение
+            #activate_env = "source /home/gpahomov/Nextcloud/scripts/git/WireguardAutoConfinguration/wireguard/bin/activate"
+            # Запускаем скрипт
+            #run_script = "python3 /home/gpahomov/Nextcloud/scripts/git/WireguardAutoConfinguration/main.py"
+            
+            # Объединяем команды в одну строку
+            command = f"{COMMAND_GEN_CONFIG}"
+            
+            # Выполняем команду
+            result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            
+            # Отправляем результат выполнения команды пользователю
+            bot.send_message(chat_id, f"Команда выполнена успешно:\n{result.stdout}", reply_markup=menu)
+        except subprocess.CalledProcessError as e:
+            # Если произошла ошибка, отправляем сообщение об ошибке
+            bot.send_message(chat_id, f"Ошибка при выполнении команды:\n{e.stderr}", reply_markup=menu)
+    else:
+        bot.send_message(chat_id, "Сначала введите данные для конфигурации.", reply_markup=menu)
+
 def handle_user_input(chat_id, text):
     if chat_id in user_states:
         if chat_id not in user_data:
@@ -103,4 +131,5 @@ def handle_user_input(chat_id, text):
             user_data[chat_id]['comment'] = text
             bot.send_message(chat_id, f"Комментарий '{text}' сохранён.", reply_markup=menu)
         user_states[chat_id] = None  # Сбрасываем состояние после сохранения данных
+
 bot.infinity_polling()

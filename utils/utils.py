@@ -1,0 +1,1 @@
+COMMAND_GEN_CONFIG = "python3 /home/gpahomov/Nextcloud/scripts/git/WireguardAutoConfinguration/main.py"
