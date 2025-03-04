@@ -1,34 +1,39 @@
 import subprocess
 import json
 from telebot.types import InputFile
-from modules.states import COMMAND_GEN_CONFIG
+from utils.utils import COMMAND_GEN_CONFIG
 
-def handle_create_request(bot, chat_id, user_data):
-    if chat_id in user_data:
-        # Выполняем команды на backend
-        try:
-            command = COMMAND_GEN_CONFIG
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+def generate_configuration():
+    """
+    Генерирует конфигурацию WireGuard и возвращает пути к файлам.
+    """
+    try:
+        command = COMMAND_GEN_CONFIG  # Замените на реальную команду
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate()
 
-            stdout, stderr = process.communicate()
-            output_dict = json.loads(stdout)
-            path_conf = output_dict['conf']
-            path_qr = output_dict['qr']
+        if process.returncode != 0:
+            raise Exception(f"Ошибка при выполнении команды: {stderr}")
 
-            bot.send_message(chat_id, f"Конфигурация успешно создана!\n{path_conf}\n{ path_qr}")
+        output_dict = json.loads(stdout)
+        return output_dict['conf'], output_dict['qr']
+    except Exception as e:
+        raise Exception(f"Ошибка при генерации конфигурации: {e}")
 
-            with open(path_qr, "rb") as photo:
-                bot.send_photo(chat_id, photo=InputFile(photo))
+def send_configuration_files(bot, chat_id, config_path, qr_path):
+    """
+    Отправляет конфигурационные файлы пользователю.
+    """
+    try:
+        with open(qr_path, "rb") as qr_file:
+            bot.send_photo(chat_id, photo=InputFile(qr_file))
 
-            with open(path_conf, "rb") as file:
-                bot.send_document(
-                    chat_id,
-                    document=InputFile(file),
-                    visible_file_name= path_conf.split('/')[-1],
-                    caption="Ваш конфигурационный файл"
-                )
-
-        except subprocess.CalledProcessError as e:
-            bot.send_message(chat_id, f"Ошибка при выполнении команды:\n{e.stderr}", reply_markup=menu)
-    else:
-        bot.send_message(chat_id, "Сначала введите данные для конфигурации.", reply_markup=menu)
+        with open(config_path, "rb") as config_file:
+            bot.send_document(
+                chat_id,
+                document=InputFile(config_file),
+                visible_file_name=config_path.split('/')[-1],
+                caption="Ваш конфигурационный файл"
+            )
+    except Exception as e:
+        raise Exception(f"Ошибка при отправке файлов: {e}")

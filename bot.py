@@ -2,14 +2,20 @@ from dotenv import load_dotenv
 import os
 import telebot
 from modules.handlers import setup_handlers
-from modules.states import user_states, user_data
+from modules.states import UserStates
 
+# Загрузка переменных окружения
 load_dotenv()
 
-token = os.getenv('TOKEN')
-bot = telebot.TeleBot(token)
+# Инициализация бота
+TELEGRAM_TOKEN = os.getenv('TOKEN')
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Инициализация обработчиков
-setup_handlers(bot, user_states, user_data)
+# Инициализация состояний пользователей
+user_states = UserStates()
 
+# Настройка обработчиков
+setup_handlers(bot, user_states)
+
+# Запуск бота
 bot.infinity_polling()
