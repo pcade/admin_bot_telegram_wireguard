@@ -2,8 +2,14 @@ class UserStates:
     """Класс для управления состояниями и данными пользователей."""
 
     def __init__(self):
-        self.user_states = {}  # Состояния пользователей
-        self.user_data = {}    # Данные пользователей
+        self.user_states = {'name': '',
+                           'ip': '',
+                           'date': '',
+                           'comment': ''}  # Состояния пользователей
+        self.user_data = {'name': '',
+                           'ip': '',
+                           'date': '',
+                           'comment': ''}    # Данные пользователей
 
     def get_user_state(self, chat_id):
         """Возвращает текущее состояние пользователя."""

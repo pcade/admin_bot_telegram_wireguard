@@ -3,12 +3,12 @@ import json
 from telebot.types import InputFile
 from utils.utils import COMMAND_GEN_CONFIG
 
-def generate_configuration():
+def generate_configuration(usr_name, usr_ip, usr_comment):
     """
     Генерирует конфигурацию WireGuard и возвращает пути к файлам.
     """
     try:
-        command = COMMAND_GEN_CONFIG  # Замените на реальную команду
+        command = f"{COMMAND_GEN_CONFIG} --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = process.communicate()
 

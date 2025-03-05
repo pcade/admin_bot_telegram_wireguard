@@ -77,11 +77,17 @@ def handle_show_request(bot, chat_id, user_states, menu_keyboard):
     Показывает введенные данные.
     """
     user_data = user_states.get_user_data(chat_id)
-    if user_data:
-        response = "\n".join([f"{key}: {value}" for key, value in user_data.items()])
-        bot.send_message(chat_id, f"Вы ввели:\n{response}", reply_markup=menu_keyboard)
-    else:
-        bot.send_message(chat_id, "Вы ещё не ввели данные.", reply_markup=menu_keyboard)
+    
+    # Формируем ответ с текущими данными, включая пустые значения
+    response = (
+        f"Вы ввели:\n"
+        f"Имя: {user_data.get('name', '')}\n"
+        f"IP: {user_data.get('ip', '')}\n"
+        f"Дата: {user_data.get('date', '')}\n"
+        f"Комментарий: {user_data.get('comment', '')}"
+    )
+    
+    bot.send_message(chat_id, response, reply_markup=menu_keyboard)
 
 def handle_clear_request(bot, chat_id, user_states, menu_keyboard):
     """
@@ -96,12 +102,16 @@ def handle_create_request(bot, chat_id, user_states, menu_keyboard):
     Создает конфигурацию и отправляет файлы.
     """
     user_data = user_states.get_user_data(chat_id)
+    usr_name = user_data.get('name', '')
+    usr_ip = user_data.get('ip', '')
+    usr_comment = user_data.get('comment', '')
+    usr_date = user_data.get('date', '')
     if not user_data:
         bot.send_message(chat_id, "Сначала введите данные.", reply_markup=menu_keyboard)
         return
 
     try:
-        config_path, qr_path = generate_configuration()
+        config_path, qr_path = generate_configuration(usr_name, usr_ip, usr_comment)
         send_configuration_files(bot, chat_id, config_path, qr_path)
         bot.send_message(chat_id, "Конфигурация успешно создана!", reply_markup=menu_keyboard)
     except Exception as e:
