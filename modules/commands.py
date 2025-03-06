@@ -1,13 +1,18 @@
 import subprocess
 import json
 from telebot.types import InputFile
+from telebot import TeleBot
 from utils.utils import COMMAND_GEN_CONFIG
+from typing import Tuple
 
-def generate_configuration(usr_name, usr_ip, usr_comment)-> tuple[str, str]:
+def generate_configuration(usr_name: str, usr_ip: str, usr_comment: str) -> Tuple[str, str]:
     """
     Генерирует конфигурацию WireGuard и возвращает пути к файлам.
 
-    return: tuple[str, str] - пути к конфигурационным файлам
+    :param usr_name: Имя пользователя (str)
+    :param usr_ip: IP-адрес пользователя (str)
+    :param usr_comment: Комментарий к конфигурации (str)
+    :return: tuple[str, str]: Пути к конфигурационным файлам.
     """
     try:
         command = f"{COMMAND_GEN_CONFIG} --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
@@ -22,9 +27,15 @@ def generate_configuration(usr_name, usr_ip, usr_comment)-> tuple[str, str]:
     except Exception as e:
         raise Exception(f"Ошибка при генерации конфигурации: {e}")
 
-def send_configuration_files(bot, chat_id, config_path, qr_path):
+def send_configuration_files(bot: TeleBot, chat_id: int, config_path: str, qr_path: str) -> None:
     """
     Отправляет конфигурационные файлы пользователю.
+
+    :param bot: Объект бота (object.TeleBot)
+    :param chat_id: ID чата (int)
+    :param config_path: Путь к конфигурационному файлу (str)
+    :param qr_path: Путь к файлу QR-кода (str)
+    :return: None
     """
     try:
         with open(qr_path, "rb") as qr_file:
