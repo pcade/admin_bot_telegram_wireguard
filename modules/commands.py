@@ -3,9 +3,11 @@ import json
 from telebot.types import InputFile
 from utils.utils import COMMAND_GEN_CONFIG
 
-def generate_configuration(usr_name, usr_ip, usr_comment):
+def generate_configuration(usr_name, usr_ip, usr_comment)-> tuple[str, str]:
     """
     Генерирует конфигурацию WireGuard и возвращает пути к файлам.
+
+    return: tuple[str, str] - пути к конфигурационным файлам
     """
     try:
         command = f"{COMMAND_GEN_CONFIG} --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
