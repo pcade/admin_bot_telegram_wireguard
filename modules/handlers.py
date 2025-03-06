@@ -2,7 +2,7 @@ from telebot import types
 from telebot import TeleBot
 from typing import Any
 from modules.states import UserStates
-from modules.common import is_user_allowed
+from modules.common import is_user_allowed,  validate_ip, is_ascii
 from modules.commands import generate_configuration, send_configuration_files
 
 def create_menu_keyboard() -> types.ReplyKeyboardMarkup:
@@ -209,6 +209,23 @@ def handle_user_input(bot: TeleBot, chat_id: int, text: str, user_states: dict, 
     state: str = user_states.get_user_state(chat_id)
     if state:
         key: str = state.replace("waiting_for_", "").replace("_input", "")
+        
+        # Валидация данных
+        if key == "name" and not is_ascii(text):
+            bot.send_message(chat_id,
+                             "Имя должно содержать только ASCII символы.",
+                             reply_markup=menu_keyboard)
+            return
+        elif key == "ip" and not validate_ip(text):
+            bot.send_message(chat_id,
+                             "Некорректный IP-адрес.",
+                             reply_markup=menu_keyboard)
+            return
+        elif key == "date":
+            pass
+        elif key == "comment" and not is_ascii(text):
+            pass
+
         user_states.update_user_data(chat_id, key, text)
         bot.send_message(chat_id,
                          f"{key.capitalize().lower()} '{text}' сохранено.",
