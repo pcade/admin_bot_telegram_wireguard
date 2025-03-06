@@ -3,7 +3,7 @@
 
 ## Описание **`/eng`** Description
 Этот проект представляет собой Telegram-бота, работающего в **приватном** режиме, который позволяет генерировать конфигурации для WireGuard. Пользователи могут получать конфигурационный файл в виде текстового документа и QR-кода через Telegram. Этот проект является частью проекта автоконфигурации клиентских конфигов Wireguard проекта [WireguardAutoConfiguration](https://github.com/pcade/WireguardAutoConfinguration).
-This project is a Telegram bot that operates in **private** mode, allowing users to generate configurations for WireGuard. Users can receive the configuration file as a text document and a QR code via Telegram. This project is part of project autoconfiguration clients config Wireguard [WireguardAutoConfiguration](https://github.com/pcade/WireguardAutoConfinguration).
+**`/eng`** This project is a Telegram bot that operates in **private** mode, allowing users to generate configurations for WireGuard. Users can receive the configuration file as a text document and a QR code via Telegram. This project is part of project autoconfiguration clients config Wireguard [WireguardAutoConfiguration](https://github.com/pcade/WireguardAutoConfinguration).
 
 ## Функциональность **`/eng`** Functionality
 
