@@ -15,7 +15,7 @@ def generate_configuration(usr_name: str, usr_ip: str, usr_comment: str) -> Tupl
     :return: tuple[str, str]: Пути к конфигурационным файлам.
     """
     try:
-        command = f"{COMMAND_GEN_CONFIG} --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
+        command = f"{COMMAND_GEN_CONFIG} --json --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = process.communicate()
 
@@ -50,3 +50,20 @@ def send_configuration_files(bot: TeleBot, chat_id: int, config_path: str, qr_pa
             )
     except Exception as e:
         raise Exception(f"Ошибка при отправке файлов: {e}")
+
+def show_config_ips() -> list:
+    """
+    Генерирует конфигурацию WireGuard и возвращает пути к файлам.
+
+    :return: Список зарезервированных ip адресов (list).
+    """
+    try:
+        command = f"{COMMAND_GEN_CONFIG} --config"
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            raise Exception(f"Ошибка при выполнении команды: {stderr}")
+        return json.loads(stdout)
+    except Exception as e:
+        raise Exception(f"Ошибка при генерации конфигурации: {e}")

@@ -1,5 +1,6 @@
 import os
 import ipaddress
+from modules.commands import show_config_ips
 
 def is_user_allowed(chat_id) -> bool:
     '''
@@ -35,3 +36,15 @@ def is_ascii(s) -> bool:
         return True
     else:
         return False
+
+def ip_is_free(ip) -> bool:
+    '''
+    Проверяет, доступен ли введенный ip.
+
+    :param ip: (str)
+    :return: (bool)
+    '''
+    if ip in show_config_ips():
+        return False
+    else:
+        return True

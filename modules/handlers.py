@@ -2,8 +2,8 @@ from telebot import types
 from telebot import TeleBot
 from typing import Any
 from modules.states import UserStates
-from modules.common import is_user_allowed,  validate_ip, is_ascii
-from modules.commands import generate_configuration, send_configuration_files
+from modules.common import is_user_allowed,  validate_ip, is_ascii, ip_is_free
+from modules.commands import *
 
 def create_menu_keyboard() -> types.ReplyKeyboardMarkup:
     """
@@ -12,7 +12,7 @@ def create_menu_keyboard() -> types.ReplyKeyboardMarkup:
     :return: Клавиатура с кнопками меню. (types.ReplyKeyboardMarkup)
     """
     menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["NAME", "IP", "DATE", "COMMENT", "CLEAR", "SHOW", "CREATE"]
+    buttons = ["NAME", "IP", "DATE", "COMMENT", "CLEAR", "SHOW", "CREATE", "CONFIG"]
 
     # Добавляем все кнопки в одну строку
     menu.add(*[types.KeyboardButton(button) for button in buttons])
@@ -76,6 +76,10 @@ def setup_handlers(bot: TeleBot, user_states: dict) -> None:
                                   message.chat.id,
                                   user_states,
                                   menu_keyboard)
+        elif message.text == "CONFIG":
+            handle_show_config_ips(bot,
+                                   message.chat.id,
+                                   menu_keyboard)
         else:
             handle_user_input(bot,
                               message.chat.id,
@@ -195,6 +199,28 @@ def handle_create_request(bot: TeleBot, chat_id: int, user_states: dict, menu_ke
                          f"Ошибка: {e}",
                          reply_markup=menu_keyboard)
 
+def handle_show_config_ips(bot: TeleBot, chat_id: int, menu_keyboard: Any) -> None:
+    """
+    Создает конфигурацию и отправляет файлы.
+
+    :param bot: Объект бота (object.TeleBot)
+    :param chat_id: ID чата (int)
+    :param user_states: Объект для хранения состояний пользователей (dict)
+    :param menu_keyboard: Клавиатура меню (Any)
+    :return: None
+    """
+    try:
+        ips: list = show_config_ips()
+        ips_message: str = "\n".join(ips)
+
+        bot.send_message(chat_id,
+                         f"На данный момент используются {ips_message}",
+                         reply_markup=menu_keyboard)
+    except Exception as e:
+        bot.send_message(chat_id,
+                         f"Ошибка: {e}",
+                         reply_markup=menu_keyboard)
+
 def handle_user_input(bot: TeleBot, chat_id: int, text: str, user_states: dict, menu_keyboard: Any) -> None:
     """
     Обрабатывает ввод пользователя.
@@ -216,11 +242,17 @@ def handle_user_input(bot: TeleBot, chat_id: int, text: str, user_states: dict, 
                              "Имя должно содержать только ASCII символы.",
                              reply_markup=menu_keyboard)
             return
-        elif key == "ip" and not validate_ip(text):
-            bot.send_message(chat_id,
-                             "Некорректный IP-адрес.",
-                             reply_markup=menu_keyboard)
-            return
+        elif key == "ip":
+            if not validate_ip(text):
+                bot.send_message(chat_id,
+                                 "Некорректный IP-адрес.",
+                                 reply_markup=menu_keyboard)
+                return
+            if not ip_is_free(text):
+                bot.send_message(chat_id,
+                     "IP-адрес занят.",
+                     reply_markup=menu_keyboard)
+                return
         elif key == "date":
             pass
         elif key == "comment" and not is_ascii(text):
