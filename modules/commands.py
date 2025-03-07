@@ -67,3 +67,18 @@ def show_config_ips() -> list:
         return json.loads(stdout)
     except Exception as e:
         raise Exception(f"Ошибка при генерации конфигурации: {e}")
+
+def daemon_reload() -> None:
+    """
+    Перезапускает демоны.
+
+    :return: None.
+    """
+    try:
+        command = f"{COMMAND_GEN_CONFIG} --daemonreload"
+        subprocess.run(command, shell=True, check=True)
+
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Ошибка при генерации конфигурации: {e}")
+    except Exception as e:
+        raise Exception(f"Общая ошибка: {e}")
