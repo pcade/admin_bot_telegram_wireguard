@@ -9,9 +9,9 @@ def generate_configuration(usr_name: str, usr_ip: str, usr_comment: str) -> Tupl
     """
     Генерирует конфигурацию WireGuard и возвращает пути к файлам.
 
-    :param usr_name: Имя пользователя (str)
-    :param usr_ip: IP-адрес пользователя (str)
-    :param usr_comment: Комментарий к конфигурации (str)
+    :param usr_name: Имя пользователя (str);
+    :param usr_ip: IP-адрес пользователя (str);
+    :param usr_comment: Комментарий к конфигурации (str);
     :return: tuple[str, str]: Пути к конфигурационным файлам.
     """
     try:
@@ -31,11 +31,11 @@ def send_configuration_files(bot: TeleBot, chat_id: int, config_path: str, qr_pa
     """
     Отправляет конфигурационные файлы пользователю.
 
-    :param bot: Объект бота (object.TeleBot)
-    :param chat_id: ID чата (int)
-    :param config_path: Путь к конфигурационному файлу (str)
-    :param qr_path: Путь к файлу QR-кода (str)
-    :return: None
+    :param bot: Объект бота (object.TeleBot);
+    :param chat_id: ID чата (int);
+    :param config_path: Путь к конфигурационному файлу (str);
+    :param qr_path: Путь к файлу QR-кода (str);
+    :return: None.
     """
     try:
         with open(qr_path, "rb") as qr_file:
@@ -80,5 +80,21 @@ def daemon_reload() -> None:
 
     except subprocess.CalledProcessError as e:
         raise Exception(f"Ошибка при генерации конфигурации: {e}")
+    except Exception as e:
+        raise Exception(f"Общая ошибка: {e}")
+
+def remove_configuration(usr_ip: str) -> None:
+    """
+    Удаляем конфигурацию из WireGuard по ip.
+
+    :param usr_ip: IP-адрес пользователя (str);
+    :return: None.
+    """
+    try:
+        command = f"{COMMAND_GEN_CONFIG} --remove '{usr_ip}'"
+        subprocess.run(command, shell=True, check=True)
+
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Ошибка при удалении конфигурации: {e}")
     except Exception as e:
         raise Exception(f"Общая ошибка: {e}")

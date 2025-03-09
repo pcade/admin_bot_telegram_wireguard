@@ -195,7 +195,7 @@ def handle_create_request(bot: TeleBot, chat_id: int, user_states: dict, menu_ke
                          "Конфигурация успешно создана!",
                          reply_markup=menu_keyboard)
 
-        daemon_reload() # перезапускаем демонов
+#        daemon_reload() # перезапускаем демонов
 
     except Exception as e:
         bot.send_message(chat_id,
