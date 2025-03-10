@@ -199,7 +199,7 @@ def handle_create_request(bot: TeleBot, chat_id: int, user_states: dict, menu_ke
     try:
         config_path: str
         qr_path: str
-        config_path, qr_path = generate_configuration(usr_name, usr_ip, usr_comment)
+        config_path, qr_path = generate_configuration(usr_name, usr_ip, usr_comment, usr_date)
         send_configuration_files(bot,
                                  chat_id,
                                  config_path,

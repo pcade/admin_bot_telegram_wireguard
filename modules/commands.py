@@ -5,17 +5,18 @@ from telebot import TeleBot
 from utils.utils import COMMAND_GEN_CONFIG
 from typing import Tuple
 
-def generate_configuration(usr_name: str, usr_ip: str, usr_comment: str) -> Tuple[str, str]:
+def generate_configuration(usr_name: str, usr_ip: str, usr_comment: str, usr_date: str) -> Tuple[str, str]:
     """
     Генерирует конфигурацию WireGuard и возвращает пути к файлам.
 
     :param usr_name: Имя пользователя (str);
     :param usr_ip: IP-адрес пользователя (str);
     :param usr_comment: Комментарий к конфигурации (str);
+    :param usr_date: Дата окончания подписки (str);
     :return: tuple[str, str]: Пути к конфигурационным файлам.
     """
     try:
-        command = f"{COMMAND_GEN_CONFIG} --json --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}'"
+        command = f"{COMMAND_GEN_CONFIG} --json --name '{usr_name}' --ip '{usr_ip}' --comment '{usr_comment}' --date '{usr_date}'"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = process.communicate()
 
