@@ -12,7 +12,15 @@ def create_menu_keyboard() -> types.ReplyKeyboardMarkup:
     :return: Клавиатура с кнопками меню. (types.ReplyKeyboardMarkup)
     """
     menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["NAME", "IP", "DATE", "COMMENT", "CLEAR", "SHOW", "CREATE", "CONFIG"]
+    buttons = ["NAME",
+               "IP",
+               "DATE",
+               "COMMENT",
+               "REMOVE",
+               "CLEAR",
+               "SHOW",
+               "CREATE",
+               "CONFIG"]
 
     # Добавляем все кнопки в одну строку
     menu.add(*[types.KeyboardButton(button) for button in buttons])
@@ -79,6 +87,11 @@ def setup_handlers(bot: TeleBot, user_states: dict) -> None:
         elif message.text == "CONFIG":
             handle_show_config_ips(bot,
                                    message.chat.id,
+                                   menu_keyboard)
+        elif message.text == "REMOVE":
+            handle_remove_by_ip_from_config(bot,
+                                   message.chat.id,
+                                   user_states,
                                    menu_keyboard)
         else:
             handle_user_input(bot,
@@ -195,7 +208,38 @@ def handle_create_request(bot: TeleBot, chat_id: int, user_states: dict, menu_ke
                          "Конфигурация успешно создана!",
                          reply_markup=menu_keyboard)
 
-#        daemon_reload() # перезапускаем демонов
+        daemon_reload() # перезапускаем демонов
+
+    except Exception as e:
+        bot.send_message(chat_id,
+                         f"Ошибка: {e}",
+                         reply_markup=menu_keyboard)
+
+def handle_remove_by_ip_from_config(bot: TeleBot, chat_id: int, user_states: dict, menu_keyboard: Any) -> None:
+    """
+    Создает конфигурацию и отправляет файлы.
+
+    :param bot: Объект бота (object.TeleBot)
+    :param chat_id: ID чата (int)
+    :param user_states: Объект для хранения состояний пользователей (dict)
+    :param menu_keyboard: Клавиатура меню (Any)
+    :return: None
+    """
+    user_data: dict[str,str] = user_states.get_user_data(chat_id)
+    usr_ip: str = user_data.get('ip', '')
+    if not user_data:
+        bot.send_message(chat_id,
+                         "Сначала введите данные.",
+                         reply_markup=menu_keyboard)
+        return
+
+    try:
+        remove_configuration(usr_ip)
+        bot.send_message(chat_id,
+                         "Конфигурация успешно удалена!",
+                         reply_markup=menu_keyboard)
+
+        daemon_reload() # перезапускаем демонов
 
     except Exception as e:
         bot.send_message(chat_id,
@@ -255,7 +299,6 @@ def handle_user_input(bot: TeleBot, chat_id: int, text: str, user_states: dict, 
                 bot.send_message(chat_id,
                      "IP-адрес занят.",
                      reply_markup=menu_keyboard)
-                return
         elif key == "date":
             pass
         elif key == "comment" and not is_ascii(text):
