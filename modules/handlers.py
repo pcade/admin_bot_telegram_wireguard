@@ -209,6 +209,7 @@ def handle_create_request(bot: TeleBot, chat_id: int, user_states: dict, menu_ke
                          reply_markup=menu_keyboard)
 
         daemon_reload() # перезапускаем демонов
+        remove_configuration_files(usr_name) # удаляем конфигурационные файлы
 
     except Exception as e:
         bot.send_message(chat_id,

@@ -99,3 +99,19 @@ def remove_configuration(usr_ip: str) -> None:
         raise Exception(f"Ошибка при удалении конфигурации: {e}")
     except Exception as e:
         raise Exception(f"Общая ошибка: {e}")
+
+def remove_configuration_files(usr_name: str) -> None:
+    """
+    Удаляем конфигурацию из WireGuard по ip.
+
+    :param usr_name: Имя пользователя (str);
+    :return: None.
+    """
+    try:
+        command = f"{COMMAND_GEN_CONFIG} --removeconfig` '{usr_name}'"
+        subprocess.run(command, shell=True, check=True)
+
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Ошибка при удалении конфигурации: {e}")
+    except Exception as e:
+        raise Exception(f"Общая ошибка: {e}")
