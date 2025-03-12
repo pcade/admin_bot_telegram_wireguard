@@ -65,7 +65,9 @@ def show_config_ips() -> list:
 
         if process.returncode != 0:
             raise Exception(f"Ошибка при выполнении команды: {stderr}")
-        return json.loads(stdout)
+
+#        print(stdout)  # Добавьте этот отладочный вывод
+        return stdout
     except Exception as e:
         raise Exception(f"Ошибка при генерации конфигурации: {e}")
 

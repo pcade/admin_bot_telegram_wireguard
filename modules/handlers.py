@@ -258,11 +258,11 @@ def handle_show_config_ips(bot: TeleBot, chat_id: int, menu_keyboard: Any) -> No
     :return: None
     """
     try:
-        ips: list = show_config_ips()
-        ips_message: str = "\n".join(ips)
+        config: str = show_config_ips()
+#        ips_message: str = "\n".join(ips)
 
         bot.send_message(chat_id,
-                         f"На данный момент используются {ips_message}",
+                         f"На данный момент используются {config}",
                          reply_markup=menu_keyboard)
     except Exception as e:
         bot.send_message(chat_id,
