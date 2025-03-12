@@ -108,7 +108,7 @@ def remove_configuration_files(usr_name: str) -> None:
     :return: None.
     """
     try:
-        command = f"{COMMAND_GEN_CONFIG} --removeconfig` '{usr_name}'"
+        command = f"{COMMAND_GEN_CONFIG} --removeconfig '{usr_name}'"
         subprocess.run(command, shell=True, check=True)
 
     except subprocess.CalledProcessError as e:
