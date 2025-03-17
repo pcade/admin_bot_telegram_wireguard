@@ -71,6 +71,32 @@ def show_config_ips() -> list:
     except Exception as e:
         raise Exception(f"Ошибка при генерации конфигурации: {e}")
 
+def format_peer_info(data):
+    # Проверяем, что данные являются списком
+    if not isinstance(data, list):
+        raise ValueError("Input data must be a list of dictionaries.")
+
+    formatted_data = []
+    for item in data:
+        # Проверяем, что каждый элемент является словарем
+        if not isinstance(item, dict):
+            raise ValueError("Each item in the list must be a dictionary.")
+
+        # Извлекаем данные
+        ip_address = item.get("ip_address", "")
+        peer_info = item.get("peer_info", {})
+        name = peer_info.get("name", "")
+        start_date = peer_info.get("date_range", {}).get("start_date", "")
+        end_date = peer_info.get("date_range", {}).get("end_date", "")
+        comment = peer_info.get("comment", "")
+        latest_handshake = peer_info.get("latest handshake", "")
+
+        # Формируем строку
+        formatted_string = f'"{ip_address}",\n"{name}",\n"{start_date}",\n"{end_date}",\n"{comment}",\n"{latest_handshake}"'
+        formatted_data.append(formatted_string)
+
+    return "\n\n".join(formatted_data)
+
 def daemon_reload() -> None:
     """
     Перезапускает демоны.

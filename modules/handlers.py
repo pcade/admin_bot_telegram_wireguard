@@ -258,12 +258,20 @@ def handle_show_config_ips(bot: TeleBot, chat_id: int, menu_keyboard: Any) -> No
     :return: None
     """
     try:
-        config: str = show_config_ips()
-#        ips_message: str = "\n".join(ips)
-
-        bot.send_message(chat_id,
-                         f"На данный момент используются {config}",
-                         reply_markup=menu_keyboard)
+        data: str = json.loads(show_config_ips())
+        formatted_output = format_peer_info(data)
+        
+        # Лимит символов для одного сообщения в Telegram
+        max_message_length = 4096
+        
+        # Разбиваем сообщение на части, если оно превышает лимит
+        messages = [formatted_output[i:i + max_message_length] for i in range(0, len(formatted_output), max_message_length)]
+        
+        # Отправляем каждую часть сообщения
+        for message in messages:
+            bot.send_message(chat_id,
+                             f"На данный момент используются {message}",
+                             reply_markup=menu_keyboard)
     except Exception as e:
         bot.send_message(chat_id,
                          f"Ошибка: {e}",
