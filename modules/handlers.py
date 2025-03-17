@@ -235,17 +235,19 @@ def handle_remove_by_ip_from_config(bot: TeleBot, chat_id: int, user_states: dic
         return
 
     try:
-        remove_configuration(usr_ip)
         bot.send_message(chat_id,
                          "Конфигурация успешно удалена!",
                          reply_markup=menu_keyboard)
 
+        remove_configuration(usr_ip)
+    
         daemon_reload() # перезапускаем демонов
 
     except Exception as e:
         bot.send_message(chat_id,
                          f"Ошибка: {e}",
                          reply_markup=menu_keyboard)
+
 
 def handle_show_config_ips(bot: TeleBot, chat_id: int, menu_keyboard: Any) -> None:
     """
